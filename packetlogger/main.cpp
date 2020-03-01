@@ -120,7 +120,7 @@ void PacketNetLogger::postAsync(std::function<void()> callback) {
 }
 
 void PacketNetLogger::registerPlayer(ServerPlayer *player) {
-    auto playerName = player->getNameTag(); // <- uwazaj zeby nie accessowac wlasciowsci tego gracza w postAsync bo moze czasem wywalic
+    auto playerName = player->getNameTag();
     PacketNetLogger::postAsync([player, playerName]() {
         if (loggers.count(player) > 0)
             return;
@@ -135,7 +135,7 @@ void PacketNetLogger::unregisterPlayer(ServerPlayer *player) {
 }
 
 void PacketNetLogger::log(ServerPlayer *player, std::string const &pkName, int const &id, std::string const &data) {
-    PacketNetLogger::postAsync([player, pkName, id, data]() { // <- tu ci i tak zrobi kopie parametrow wiec jest ok const&
+    PacketNetLogger::postAsync([player, pkName, id, data]() {
         auto i = loggers.find(player);
         if (i == loggers.end())
             return;
@@ -202,7 +202,7 @@ THook(void*, _ZN6Packet12readNoHeaderER20ReadOnlyBinaryStreamRKh, Packet* sh, Re
 THook(void* , _ZN6Packet6handleERK17NetworkIdentifierR16NetEventCallbackRSt10shared_ptrIS_E, Packet* sh,
             NetworkIdentifier const &netid, NetEventCallback &callback, std::shared_ptr<Packet> &pk) {
     if (savedPacket == sh) {
-        ServerPlayer *player = getMC()->getServerNetworkHandler()->_getServerPlayer(netid, pk.get()->getClientSubId())/* jakos dostan tego gracza */;
+        ServerPlayer *player = getMC()->getServerNetworkHandler()->_getServerPlayer(netid, pk.get()->getClientSubId());
         if(player && pk.get()->getName() != "PlayerAuthInputPacket"
         && pk.get()->getName() !="NetworkStackLatencyPacket"
         && pk.get()->getName() != "ClientCacheBlobStatusPacket"
